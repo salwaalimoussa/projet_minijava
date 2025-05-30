@@ -1,0 +1,47 @@
+// test {
+//  int i = 1;
+// }
+
+class A {
+
+    private int a;
+    public static final int b = 1;
+
+    public final void m() {
+    }
+    
+    protected int m(int i) {
+        return 0;
+    }
+    
+    public A() {
+        this(0);
+    }
+    
+    private A(int _a) {
+        this.a = _a;
+    }
+}
+
+abstract class B extends A {
+         public B() {
+         }
+         public abstract void m();
+}
+
+class C extends B {
+
+    public C() {
+        super();
+    }
+
+        public void m() {
+        }
+}
+
+
+public class Main {
+    public static void main (String []args) {
+        
+    }
+}

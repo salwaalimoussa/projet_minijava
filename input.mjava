@@ -42,7 +42,9 @@ public class Main {
 	public static void main(String []args) {
 		I []tab = new I [2];
     I a = new A();
-		
+		tab[0] = a;
+		tab[1] = new B();
+		tab[0].m();
 		
 	}
 }

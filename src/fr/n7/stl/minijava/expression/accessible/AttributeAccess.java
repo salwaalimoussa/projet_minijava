@@ -1,13 +1,13 @@
 package fr.n7.stl.minijava.expression.accessible;
 
 import fr.n7.stl.minic.ast.expression.Expression;
+import fr.n7.stl.minic.ast.expression.accessible.AccessibleExpression;
 import fr.n7.stl.minic.ast.expression.assignable.AssignableExpression;
 import fr.n7.stl.minic.ast.scope.Declaration;
 import fr.n7.stl.minic.ast.scope.HierarchicalScope;
 import fr.n7.stl.minic.ast.type.Type;
 import fr.n7.stl.tam.ast.Fragment;
 import fr.n7.stl.tam.ast.TAMFactory;
-import fr.n7.stl.minijava.expression.accessible.AccessibleExpression;
 
 public class AttributeAccess implements AccessibleExpression, AssignableExpression {
     protected Expression object;
@@ -49,4 +49,4 @@ public class AttributeAccess implements AccessibleExpression, AssignableExpressi
         // TODO: Implement code generation for attribute access
         return _factory.createFragment();
     }
-} 
+}

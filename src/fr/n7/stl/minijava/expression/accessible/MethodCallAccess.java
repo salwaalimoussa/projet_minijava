@@ -1,13 +1,14 @@
 package fr.n7.stl.minijava.expression.accessible;
 
-import java.util.List;
 import fr.n7.stl.minic.ast.expression.Expression;
+import fr.n7.stl.minic.ast.expression.accessible.AccessibleExpression;
 import fr.n7.stl.minic.ast.expression.assignable.AssignableExpression;
 import fr.n7.stl.minic.ast.scope.Declaration;
 import fr.n7.stl.minic.ast.scope.HierarchicalScope;
 import fr.n7.stl.minic.ast.type.Type;
 import fr.n7.stl.tam.ast.Fragment;
 import fr.n7.stl.tam.ast.TAMFactory;
+import java.util.List;
 
 public class MethodCallAccess implements AccessibleExpression, AssignableExpression {
     protected Expression object;
@@ -82,4 +83,4 @@ public class MethodCallAccess implements AccessibleExpression, AssignableExpress
         sb.append(")");
         return sb.toString();
     }
-} 
+}

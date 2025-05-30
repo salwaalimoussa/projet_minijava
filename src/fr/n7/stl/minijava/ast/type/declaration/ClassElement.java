@@ -1,6 +1,7 @@
 package fr.n7.stl.minijava.ast.type.declaration;
 
 import fr.n7.stl.minic.ast.scope.Declaration;
+import fr.n7.stl.minic.ast.scope.HierarchicalScope;
 
 public abstract class ClassElement  implements Declaration {
 	
@@ -39,6 +40,18 @@ public abstract class ClassElement  implements Declaration {
 	@Override
 	public String getName() {
 		return this.name;
+	}
+
+	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
+		if (!_scope.accepts(this)) {
+			return false;
+		}
+		_scope.register(this);
+		return true;
+	}
+
+	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
+		return true;
 	}
 
 }

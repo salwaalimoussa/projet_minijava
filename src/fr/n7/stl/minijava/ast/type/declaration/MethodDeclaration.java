@@ -7,6 +7,9 @@ import fr.n7.stl.minic.ast.Block;
 import fr.n7.stl.minic.ast.instruction.declaration.FunctionDeclaration;
 import fr.n7.stl.minic.ast.instruction.declaration.ParameterDeclaration;
 import fr.n7.stl.minic.ast.type.Type;
+import fr.n7.stl.minic.ast.scope.HierarchicalScope;
+import fr.n7.stl.minic.ast.scope.Declaration;
+import fr.n7.stl.util.Logger;
 
 public class MethodDeclaration  extends ClassElement {
 	
@@ -57,9 +60,81 @@ public class MethodDeclaration  extends ClassElement {
 	}
 
 	@Override
+	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
+		// Let SymbolTable handle method overloading
+		if (!_scope.accepts(this)) {
+			return false;
+		}
+		_scope.register(this);
+		
+		// Create a new scope for method parameters and body
+		HierarchicalScope<Declaration> methodScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
+		
+		// Collect parameters
+		boolean result = true;
+		for (ParameterDeclaration param : this.parameters) {
+			result = result && param.collectAndPartialResolve(methodScope);
+		}
+		
+		// If concrete method (has body), collect body
+		if (this.concrete && this.body != null) {
+			result = result && this.body.collectAndPartialResolve(methodScope);
+		}
+		
+		return result;
+	}
+
+	@Override
+	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
+		// Create a new scope for method parameters and body
+		HierarchicalScope<Declaration> methodScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
+		
+		// Resolve parameters
+		boolean result = true;
+		for (ParameterDeclaration param : this.parameters) {
+			result = result && param.completeResolve(methodScope);
+		}
+		
+		// If concrete method (has body), resolve body
+		if (this.concrete && this.body != null) {
+			result = result && this.body.completeResolve(methodScope);
+		}
+		
+		return result;
+	}
+
+	@Override
 	public Type getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.type;
+	}
+
+	public List<ParameterDeclaration> getParameters() {
+		return this.parameters;
+	}
+
+	public boolean checkType() {
+		boolean result = true;
+		
+		// Check return type
+		if (this.type == null) {
+			Logger.error("Method " + this.name + " has no return type");
+			return false;
+		}
+		
+		// Check parameter types
+		for (ParameterDeclaration param : this.parameters) {
+			if (param.getType() == null) {
+				Logger.error("Parameter " + param.getName() + " in method " + this.name + " has no type");
+				return false;
+			}
+		}
+		
+		// Check types in method body if it's a concrete method
+		if (this.concrete && this.body != null) {
+			result = result && this.body.checkType();
+		}
+		
+		return result;
 	}
 
 }

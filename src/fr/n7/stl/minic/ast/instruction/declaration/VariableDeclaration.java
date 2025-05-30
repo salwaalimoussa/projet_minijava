@@ -145,9 +145,23 @@ public class VariableDeclaration implements Declaration, Instruction {
 
 	@Override
 	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
+		// First resolve the type
 		boolean resolvedType = this.type.completeResolve(_scope);
-		boolean resolvedValue = (this.value == null) || this.value.completeResolve(_scope);
-		return resolvedType && resolvedValue;
+		if (!resolvedType) {
+			Logger.error("Failed to resolve type for variable " + this.name);
+			return false;
+		}
+
+		// Then resolve the value if it exists
+		if (this.value != null) {
+			boolean resolvedValue = this.value.completeResolve(_scope);
+			if (!resolvedValue) {
+				Logger.error("Failed to resolve value for variable " + this.name);
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/*
@@ -157,10 +171,20 @@ public class VariableDeclaration implements Declaration, Instruction {
 	 */
 	@Override
 	public boolean checkType() {
-		if (type.compatibleWith(this.value.getType()) || this.value.getType().compatibleWith(type)) {
+		if (this.value == null) {
+			return true;  // No value to check against
+		}
+		
+		Type valueType = this.value.getType();
+		if (valueType == null) {
+			Logger.error("Could not determine type of value for " + this.name);
+			return false;
+		}
+		
+		if (type.compatibleWith(valueType) || valueType.compatibleWith(type)) {
 			return true;
 		} else {
-			Logger.error("The type of " + this.name + " is incompatible.");
+			Logger.error("Type mismatch for " + this.name + ": expected " + type + " but got " + valueType);
 			return false;
 		}
 	}
@@ -178,7 +202,7 @@ public class VariableDeclaration implements Declaration, Instruction {
 		this.register = _register;
 		this.offset = _offset;
 
-		// Retourne l’offset suivant (décalé de la taille de la variable)
+		// Retourne l'offset suivant (décalé de la taille de la variable)
 		return _offset + this.type.length();
 	}
 

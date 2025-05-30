@@ -73,7 +73,11 @@ public class Block {
 	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
 		boolean result = true;
 		for (Instruction instruction : this.instructions) {
-			result = result && instruction.collectAndPartialResolve(_scope);
+			boolean resolved = instruction.collectAndPartialResolve(_scope);
+			if (!resolved) {
+				Logger.error("Failed to collect instruction: " + instruction);
+			}
+			result = result && resolved;
 		}
 		return result;
 	}
@@ -97,7 +101,11 @@ public class Block {
 	 public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope, FunctionDeclaration _function) {
 		 boolean result = true;
 		 for (Instruction instruction : this.instructions) {
-			 result = result && instruction.collectAndPartialResolve(_scope, _function);
+			 boolean resolved = instruction.collectAndPartialResolve(_scope, _function);
+			 if (!resolved) {
+				 Logger.error("Failed to collect instruction with function context: " + instruction);
+			 }
+			 result = result && resolved;
 		 }
 		 return result;
 	 }
@@ -116,12 +124,23 @@ public class Block {
 	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
 		boolean result = true;
 
+		// First pass: collect and resolve all declarations
+		for (Instruction instruction : this.instructions) {
+			// Collect and resolve all instructions first
+			boolean resolved = instruction.collectAndPartialResolve(_scope);
+			if (!resolved) {
+				Logger.error("Failed to collect instruction: " + instruction);
+				result = false;
+			}
+		}
+
+		// Second pass: complete resolution of all instructions
 		for (Instruction instruction : this.instructions) {
 			boolean resolved = instruction.completeResolve(_scope);
 			if (!resolved) {
-				Logger.error("Error: Failed to resolve instruction: " + instruction);
+				Logger.error("Failed to resolve instruction: " + instruction);
+				result = false;
 			}
-			result = resolved && result;
 		}
 
 		return result;

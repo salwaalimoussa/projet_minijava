@@ -104,25 +104,26 @@ public class ASTBuilder extends MiniJavaParserBaseListener {
         for (ClassDeclaration c : this.classes) {
             System.out.println(c);
         }
-        /*
-         * System.out.println(this.main);
-         * SymbolTable tds = new SymbolTable();
-         * boolean okCollectAndPartialResolve = true;
-         * for (ClassDeclaration c : this.classes) {
-         * okCollectAndPartialResolve = okCollectAndPartialResolve &&
-         * c.collectAndPartialResolve(tds);
-         * }
-         * okCollectAndPartialResolve = okCollectAndPartialResolve &&
-         * this.main.collectAndPartialResolve(tds);
-         * if (okCollectAndPartialResolve) {
-         * System.out.println("collect succeeded");
-         * boolean okCompleteResolve = true;
-         * for (ClassDeclaration c : this.classes) {
-         * okCompleteResolve = okCompleteResolve && c.completeResolve(tds);
-         * }
-         * okCompleteResolve = okCompleteResolve && this.main.completeResolve(tds);
-         * if (okCompleteResolve) {
-         * System.out.println("Resolve succeeded.");
+        
+          System.out.println(this.main);
+          SymbolTable tds = new SymbolTable();
+          boolean okCollectAndPartialResolve = true;
+          for (ClassDeclaration c : this.classes) {
+          okCollectAndPartialResolve = okCollectAndPartialResolve &&
+          c.collectAndPartialResolve(tds);
+          }
+          okCollectAndPartialResolve = okCollectAndPartialResolve &&
+          this.main.collectAndPartialResolve(tds);
+          if (okCollectAndPartialResolve) {
+          System.out.println("collect succeeded");
+          boolean okCompleteResolve = true;
+          for (ClassDeclaration c : this.classes) {
+          okCompleteResolve = okCompleteResolve && c.completeResolve(tds);
+          }
+          okCompleteResolve = okCompleteResolve && this.main.completeResolve(tds);
+          if (okCompleteResolve) {
+          System.out.println("Resolve succeeded.");
+        /* 
          * boolean okCheckType = true;
          * for (ClassDeclaration c : this.classes) {
          * okCheckType = okCheckType && c.checkType();
@@ -156,13 +157,14 @@ public class ASTBuilder extends MiniJavaParserBaseListener {
          * } else {
          * System.out.println("Type verification failed.");
          * }
-         * } else {
-         * System.out.println("Resolve failed." + tds);
-         * }
-         * } else {
-         * System.out.println("Collect failed : " + tds);
-         * }
-         */
+         */ 
+          } else {
+          System.out.println("Resolve failed." + tds);
+          }
+          } else {
+          System.out.println("Collect failed : " + tds);
+          }
+         
     }
 
     @Override

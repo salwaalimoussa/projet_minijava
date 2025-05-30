@@ -6,8 +6,11 @@ package fr.n7.stl.minic.ast.expression.assignable;
 import fr.n7.stl.minic.ast.expression.AbstractArray;
 import fr.n7.stl.minic.ast.expression.accessible.AccessibleExpression;
 import fr.n7.stl.minic.ast.expression.accessible.BinaryOperator;
+import fr.n7.stl.minic.ast.scope.Declaration;
+import fr.n7.stl.minic.ast.scope.HierarchicalScope;
 import fr.n7.stl.tam.ast.Fragment;
 import fr.n7.stl.tam.ast.TAMFactory;
+import fr.n7.stl.util.Logger;
 
 /**
  * Abstract Syntax Tree node for an expression whose computation assigns a cell
@@ -28,6 +31,36 @@ public class ArrayAssignment extends AbstractArray<AssignableExpression> impleme
 	 */
 	public ArrayAssignment(AssignableExpression _array, AccessibleExpression _index) {
 		super(_array, _index);
+	}
+
+	@Override
+	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
+		boolean arrayResolved = this.array.collectAndPartialResolve(_scope);
+		if (!arrayResolved) {
+			Logger.error("Failed to resolve array in array assignment: " + this.array);
+		}
+		
+		boolean indexResolved = this.index.collectAndPartialResolve(_scope);
+		if (!indexResolved) {
+			Logger.error("Failed to resolve index in array assignment: " + this.index);
+		}
+		
+		return arrayResolved && indexResolved;
+	}
+
+	@Override
+	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
+		boolean arrayResolved = this.array.completeResolve(_scope);
+		if (!arrayResolved) {
+			Logger.error("Failed to completely resolve array in array assignment: " + this.array);
+		}
+		
+		boolean indexResolved = this.index.completeResolve(_scope);
+		if (!indexResolved) {
+			Logger.error("Failed to completely resolve index in array assignment: " + this.index);
+		}
+		
+		return arrayResolved && indexResolved;
 	}
 
 	/*

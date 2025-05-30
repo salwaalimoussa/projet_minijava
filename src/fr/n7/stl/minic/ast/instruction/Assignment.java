@@ -63,7 +63,15 @@ public class Assignment implements Instruction, Expression {
 	@Override
 	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
 		boolean assignableResolved = this.assignable.collectAndPartialResolve(_scope);
+		if (!assignableResolved) {
+			Logger.error("Failed to resolve assignable expression: " + this.assignable);
+		}
+		
 		boolean valueResolved = this.value.collectAndPartialResolve(_scope);
+		if (!valueResolved) {
+			Logger.error("Failed to resolve value expression: " + this.value);
+		}
+		
 		return assignableResolved && valueResolved;
 	}
 
@@ -80,11 +88,18 @@ public class Assignment implements Instruction, Expression {
 	 * .HierarchicalScope)
 	 */
 	@Override
-
 	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
-		boolean ok1 = this.assignable.completeResolve(_scope);
-		boolean ok2 = this.value.completeResolve(_scope);
-		return ok1 && ok2;
+		boolean assignableResolved = this.assignable.completeResolve(_scope);
+		if (!assignableResolved) {
+			Logger.error("Failed to completely resolve assignable expression: " + this.assignable);
+		}
+		
+		boolean valueResolved = this.value.completeResolve(_scope);
+		if (!valueResolved) {
+			Logger.error("Failed to completely resolve value expression: " + this.value);
+		}
+		
+		return assignableResolved && valueResolved;
 	}
 
 	/*
@@ -94,7 +109,6 @@ public class Assignment implements Instruction, Expression {
 	 */
 	@Override
 	public Type getType() {
-		// On retourne simplement le type de la variable à laquelle on affecte
 		return this.assignable.getType();
 	}
 
@@ -105,11 +119,20 @@ public class Assignment implements Instruction, Expression {
 	 */
 	@Override
 	public boolean checkType() {
-		// throw new SemanticsUndefinedException("Semantics checkType is undefined in
-		// Assignment.");
 		Type assignableType = this.assignable.getType();
 		Type valueType = this.value.getType();
-		if (assignableType.equals(valueType)) {
+		
+		if (assignableType == null) {
+			Logger.error("Type of assignable expression is null: " + this.assignable);
+			return false;
+		}
+		
+		if (valueType == null) {
+			Logger.error("Type of value expression is null: " + this.value);
+			return false;
+		}
+		
+		if (assignableType.compatibleWith(valueType)) {
 			return true;
 		} else {
 			Logger.error("Type mismatch in assignment: expected " + assignableType + ", but found " + valueType);

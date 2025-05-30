@@ -7,6 +7,8 @@ import fr.n7.stl.minic.ast.Block;
 import fr.n7.stl.minic.ast.instruction.declaration.FunctionDeclaration;
 import fr.n7.stl.minic.ast.instruction.declaration.ParameterDeclaration;
 import fr.n7.stl.minic.ast.type.Type;
+import fr.n7.stl.minic.ast.scope.HierarchicalScope;
+import fr.n7.stl.minic.ast.scope.Declaration;
 
 public class ConstructorDeclaration extends ClassElement {
 	
@@ -42,5 +44,75 @@ public class ConstructorDeclaration extends ClassElement {
 	public Type getType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public List<ParameterDeclaration> getParameters() {
+		return this.parameters;
+	}
+
+	@Override
+	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
+		// First register the constructor itself
+		if (!_scope.accepts(this)) {
+			return false;
+		}
+		_scope.register(this);
+		
+		// Create a new scope for constructor parameters and body
+		HierarchicalScope<Declaration> constructorScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
+		
+		// Collect parameters
+		boolean result = true;
+		for (ParameterDeclaration param : this.parameters) {
+			result = result && param.collectAndPartialResolve(constructorScope);
+		}
+		
+		// Collect body
+		if (this.body != null) {
+			result = result && this.body.collectAndPartialResolve(constructorScope);
+		}
+		
+		return result;
+	}
+
+	@Override
+	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
+		// Create a new scope for constructor parameters and body
+		HierarchicalScope<Declaration> constructorScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
+		
+		// First register all parameters in the scope
+		boolean result = true;
+		for (ParameterDeclaration param : this.parameters) {
+			result = result && param.collectAndPartialResolve(constructorScope);
+			if (!result) {
+				return false;
+			}
+		}
+		
+		// Then resolve parameters
+		for (ParameterDeclaration param : this.parameters) {
+			result = result && param.completeResolve(constructorScope);
+			if (!result) {
+				return false;
+			}
+		}
+		
+		// Finally resolve body with parameters in scope
+		if (this.body != null) {
+			result = result && this.body.completeResolve(constructorScope);
+		}
+		
+		return result;
+	}
+
+	public boolean checkType() {
+		boolean result = true;
+		
+		// Check types in the constructor body
+		if (this.body != null) {
+			result = result && this.body.checkType();
+		}
+		
+		return result;
 	}
 }

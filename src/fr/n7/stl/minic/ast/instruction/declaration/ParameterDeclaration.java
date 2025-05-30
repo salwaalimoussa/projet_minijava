@@ -5,6 +5,7 @@ package fr.n7.stl.minic.ast.instruction.declaration;
 
 import fr.n7.stl.minic.ast.scope.Declaration;
 import fr.n7.stl.minic.ast.type.Type;
+import fr.n7.stl.minic.ast.scope.HierarchicalScope;
 
 /**
  * Abstract Syntax Tree node for a formal parameter in a function declaration.
@@ -70,6 +71,17 @@ public class ParameterDeclaration implements Declaration {
 	public int getOffset() {
 		return this.offset;
 	}
-	
+
+	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
+		if (!_scope.accepts(this)) {
+			return false;
+		}
+		_scope.register(this);
+		return true;
+	}
+
+	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
+		return this.type.completeResolve(_scope);
+	}
 
 }

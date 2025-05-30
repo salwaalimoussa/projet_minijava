@@ -45,7 +45,7 @@ public class VariableAssignment extends AbstractIdentifier implements Assignable
 	// declaration dyalo variable declaration sinon katrja3 erreur
 	@Override
 	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
-		if (((HierarchicalScope<Declaration>) _scope).knows(this.name)) {
+		if (_scope.knows(this.name)) {
 			Declaration _declaration = _scope.get(this.name);
 			if (_declaration instanceof VariableDeclaration) {
 				this.declaration = ((VariableDeclaration) _declaration);
@@ -55,7 +55,7 @@ public class VariableAssignment extends AbstractIdentifier implements Assignable
 				return false;
 			}
 		} else {
-			Logger.error("The identifier " + this.name + " has not been found.");
+			Logger.error("The identifier " + this.name + " has not been found in scope.");
 			return false;
 		}
 	}
@@ -95,15 +95,21 @@ public class VariableAssignment extends AbstractIdentifier implements Assignable
 	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
 		if (_scope.knows(this.name)) {
 			Declaration declaration = _scope.get(this.name);
-			if (declaration instanceof VariableDeclaration) {
-				this.declaration = (VariableDeclaration) declaration;
-				return true;
+			if (declaration instanceof Declaration && declaration.getType() != null) {
+				if (declaration instanceof VariableDeclaration) {
+					this.declaration = (VariableDeclaration) declaration;
+					return true;
+				} else {
+					// Create a new VariableDeclaration for other types of declarations
+					this.declaration = new VariableDeclaration(declaration.getName(), declaration.getType(), 0);
+					return true;
+				}
 			} else {
-				Logger.error("The declaration for " + this.name + " is of the wrong kind.");
+				Logger.error("Type of variable " + this.name + " could not be resolved.");
 				return false;
 			}
 		} else {
-			Logger.error("Variable " + this.name + " has not been declared.");
+			Logger.error("Variable " + this.name + " has not been declared in scope.");
 			return false;
 		}
 	}

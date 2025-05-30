@@ -47,7 +47,22 @@ public class ClassDeclaration implements Instruction, Declaration {
 
 	@Override
 	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope) {
-		throw new SemanticsUndefinedException( "Semantics collect is undefined in ClassDeclaration.");
+		boolean result = true;
+		// Register the class itself in the scope
+		if (!_scope.accepts(this)) {
+			return false;
+		}
+		_scope.register(this);
+		
+		// Create a new scope for class elements
+		HierarchicalScope<Declaration> classScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
+		
+		// Collect all elements
+		for (ClassElement element : this.elements) {
+			result = result && element.collectAndPartialResolve(classScope);
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -57,12 +72,50 @@ public class ClassDeclaration implements Instruction, Declaration {
 
 	@Override
 	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
-		throw new SemanticsUndefinedException( "Semantics resolve is undefined in ClassDeclaration.");
+		boolean result = true;
+		
+		// Resolve ancestor class if it exists
+		if (this.ancestor != null) {
+			Declaration ancestorDecl = _scope.get(this.ancestor);
+			if (ancestorDecl == null || !(ancestorDecl instanceof ClassDeclaration)) {
+				return false;
+			}
+		}
+		
+		// Create a new scope for class elements
+		HierarchicalScope<Declaration> classScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
+		
+		// Complete resolve for all elements
+		for (ClassElement element : this.elements) {
+			result = result && element.completeResolve(classScope);
+		}
+		
+		return result;
 	}
 
 	@Override
 	public boolean checkType() {
-		throw new SemanticsUndefinedException( "Semantics check type is undefined in ClassDeclaration.");
+		boolean result = true;
+		
+		// Check ancestor class if it exists
+		if (this.ancestor != null) {
+			// Type checking for inheritance will be done in completeResolve
+			// Here we just verify that the ancestor class exists and is concrete
+			// This is already done in completeResolve
+		}
+		
+		// Check types for all class elements
+		for (ClassElement element : this.elements) {
+			if (element instanceof MethodDeclaration) {
+				result = result && ((MethodDeclaration)element).checkType();
+			} else if (element instanceof AttributeDeclaration) {
+				result = result && ((AttributeDeclaration)element).checkType();
+			} else if (element instanceof ConstructorDeclaration) {
+				result = result && ((ConstructorDeclaration)element).checkType();
+			}
+		}
+		
+		return result;
 	}
 
 	@Override

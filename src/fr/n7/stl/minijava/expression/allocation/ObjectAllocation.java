@@ -1,14 +1,15 @@
 package fr.n7.stl.minijava.expression.allocation;
 
-import java.util.List;
 import fr.n7.stl.minic.ast.expression.Expression;
+import fr.n7.stl.minic.ast.expression.accessible.AccessibleExpression;
 import fr.n7.stl.minic.ast.scope.Declaration;
 import fr.n7.stl.minic.ast.scope.HierarchicalScope;
 import fr.n7.stl.minic.ast.type.Type;
 import fr.n7.stl.tam.ast.Fragment;
 import fr.n7.stl.tam.ast.TAMFactory;
+import java.util.List; // Import the interface
 
-public class ObjectAllocation implements Expression {
+public class ObjectAllocation implements AccessibleExpression {
     protected String className;
     protected List<Expression> arguments;
 
@@ -60,4 +61,4 @@ public class ObjectAllocation implements Expression {
         sb.append(")");
         return sb.toString();
     }
-} 
+}

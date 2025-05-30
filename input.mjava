@@ -1,26 +1,25 @@
 // test {
-//  int i = 1;
+//	int i = 1;
 // }
 
 class A {
 
-    private int a;
-    public static final int b = 1;
+	private int a;
+	public static final int b = 1;
 
-    public final void m() {
-    }
-    
-    protected int m(int i) {
-        return 0;
-    }
-    
-    public A() {
-        this(0);
-    }
-    
-    private A(int _a) {
-        this.a = _a;
-    }
+	public final void m() {
+	}
+	
+	protected int m(int i) {
+	}
+	
+	public A() {
+		this(0);
+	}
+	
+	private A(int _a) {
+		this.a = _a;
+	}
 }
 
 abstract class B extends A {
@@ -31,17 +30,19 @@ abstract class B extends A {
 
 class C extends B {
 
-    public C() {
-        super();
-    }
+	public C() {
+		super();
+	}
 
         public void m() {
         }
 }
 
-
 public class Main {
-    public static void main (String []args) {
-        
-    }
+	public static void main(String []args) {
+		I []tab = new I [2];
+    I a = new A();
+		
+		
+	}
 }

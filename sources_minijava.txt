@@ -1,0 +1,16 @@
+src/fr/n7/stl/minijava/ast/type/ClassType.java
+src/fr/n7/stl/minijava/ast/type/declaration/AccessRight.java
+src/fr/n7/stl/minijava/ast/type/declaration/AttributeDeclaration.java
+src/fr/n7/stl/minijava/ast/type/declaration/ClassDeclaration.java
+src/fr/n7/stl/minijava/ast/type/declaration/ClassElement.java
+src/fr/n7/stl/minijava/ast/type/declaration/ConstructorDeclaration.java
+src/fr/n7/stl/minijava/ast/type/declaration/ElementKind.java
+src/fr/n7/stl/minijava/ast/type/declaration/MainDeclaration.java
+src/fr/n7/stl/minijava/ast/type/declaration/MethodDeclaration.java
+src/fr/n7/stl/minijava/ASTBuilder.java
+src/fr/n7/stl/minijava/Driver.java
+src/fr/n7/stl/minijava/parser/MiniJavaLexer.java
+src/fr/n7/stl/minijava/parser/MiniJavaParser.java
+src/fr/n7/stl/minijava/parser/MiniJavaParserBaseListener.java
+src/fr/n7/stl/minijava/parser/MiniJavaParserListener.java
+src/fr/n7/stl/minijava/ParsingErrorListener.java

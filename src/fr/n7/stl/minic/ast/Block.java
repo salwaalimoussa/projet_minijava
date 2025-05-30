@@ -169,13 +169,14 @@ public class Block {
 	 * @param _register Inherited Register associated to the address of the
 	 *                  variables.
 	 * @param _offset   Inherited Current offset for the address of the variables.
+	 * @return The new offset after allocating memory for all instructions.
 	 */
-
-	public void allocateMemory(Register _register, int _offset) {
+	public int allocateMemory(Register _register, int _offset) {
 		int currentOffset = _offset;
 		for (Instruction instruction : this.instructions) {
 			currentOffset = instruction.allocateMemory(_register, currentOffset);
 		}
+		return currentOffset;
 	}
 
 	/**

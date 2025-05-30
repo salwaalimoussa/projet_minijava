@@ -117,15 +117,50 @@ public class MainDeclaration implements Instruction {
 	}
 
 	@Override
-	public int allocateMemory(Register _register, int _offset) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public Fragment getCode(TAMFactory _factory) {
-		// TODO Auto-generated method stub
-		return null;
+		Fragment fragment = _factory.createFragment();
+		
+		// Add a PUSH instruction to make the fragment non-empty
+		fragment.add(_factory.createPush(0));
+		
+		// Generate code for declarations
+		for (Declaration declaration : this.declarations) {
+			if (declaration instanceof Instruction) {
+				Fragment declCode = ((Instruction)declaration).getCode(_factory);
+				if (declCode != null) {
+					fragment.append(declCode);
+				}
+			}
+		}
+		
+		// Generate code for main block
+		if (this.main != null) {
+			Fragment mainCode = this.main.getCode(_factory);
+			if (mainCode != null) {
+				fragment.append(mainCode);
+			}
+		}
+		
+		return fragment;
+	}
+	
+	@Override
+	public int allocateMemory(Register _register, int _offset) {
+		int currentOffset = _offset;
+		
+		// Allocate memory for declarations
+		for (Declaration declaration : this.declarations) {
+			if (declaration instanceof Instruction) {
+				currentOffset = ((Instruction)declaration).allocateMemory(_register, currentOffset);
+			}
+		}
+		
+		// Allocate memory for main block
+		if (this.main != null) {
+			currentOffset = this.main.allocateMemory(_register, currentOffset);
+		}
+		
+		return currentOffset;
 	}
 	
 	public String getName() {

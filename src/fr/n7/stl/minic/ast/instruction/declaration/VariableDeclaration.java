@@ -215,8 +215,12 @@ public class VariableDeclaration implements Declaration, Instruction {
 	public Fragment getCode(TAMFactory _factory) {
 		Fragment fragment = _factory.createFragment();
 
-		// Generate value code
-		fragment.append(this.value.getCode(_factory));
+		// Generate value code if value exists, otherwise push 0
+		if (this.value != null) {
+			fragment.append(this.value.getCode(_factory));
+		} else {
+			fragment.add(_factory.createLoadL(0)); // Default initialization to 0
+		}
 
 		// Store value
 		fragment.add(_factory.createStore(register, offset, type.length()));

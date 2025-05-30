@@ -27,6 +27,8 @@ public class ClassDeclaration implements Instruction, Declaration {
 	protected String name;
 	
 	protected String ancestor;
+	
+	protected HierarchicalScope<Declaration> scope;
 
 	/**
 	 * 
@@ -36,6 +38,7 @@ public class ClassDeclaration implements Instruction, Declaration {
 		this.name = _name;
 		this.ancestor = _ancestor;
 		this.elements = _elements;
+		this.scope = null;
 	}
 	
 	/**
@@ -53,6 +56,7 @@ public class ClassDeclaration implements Instruction, Declaration {
 			return false;
 		}
 		_scope.register(this);
+		this.scope = _scope;  // Store the scope
 		
 		// Create a new scope for class elements
 		HierarchicalScope<Declaration> classScope = new fr.n7.stl.minic.ast.scope.SymbolTable(_scope);
@@ -120,12 +124,59 @@ public class ClassDeclaration implements Instruction, Declaration {
 
 	@Override
 	public int allocateMemory(Register _register, int _offset) {
-		throw new SemanticsUndefinedException( "Semantics allocation memory is undefined in ClassDeclaration.");
+		int currentOffset = _offset;
+		
+		// First allocate memory for ancestor class if it exists
+		if (this.ancestor != null) {
+			Declaration ancestorDecl = this.scope.get(this.ancestor);
+			if (ancestorDecl instanceof ClassDeclaration) {
+				currentOffset = ((ClassDeclaration) ancestorDecl).allocateMemory(_register, currentOffset);
+			}
+		}
+		
+		// Then allocate memory for all class elements
+		for (ClassElement element : this.elements) {
+			if (element instanceof AttributeDeclaration) {
+				currentOffset = ((AttributeDeclaration) element).allocateMemory(_register, currentOffset);
+			}
+			// Methods don't need memory allocation in the instance
+		}
+		
+		return currentOffset;
 	}
 
 	@Override
 	public Fragment getCode(TAMFactory _factory) {
-		throw new SemanticsUndefinedException( "Semantics get code is undefined in ClassDeclaration.");
+		Fragment fragment = _factory.createFragment();
+		
+		// Add a PUSH instruction to make the fragment non-empty
+		fragment.add(_factory.createPush(0));
+		
+		// Generate code for ancestor class if it exists
+		if (this.ancestor != null) {
+			Declaration ancestorDecl = this.scope.get(this.ancestor);
+			if (ancestorDecl instanceof ClassDeclaration) {
+				Fragment ancestorCode = ((ClassDeclaration) ancestorDecl).getCode(_factory);
+				if (ancestorCode != null) {
+					fragment.append(ancestorCode);
+				}
+			}
+		}
+		
+		// Generate code for all class elements
+		for (ClassElement element : this.elements) {
+			Fragment elementCode = null;
+			if (element instanceof MethodDeclaration) {
+				elementCode = ((MethodDeclaration) element).getCode(_factory);
+			} else if (element instanceof ConstructorDeclaration) {
+				elementCode = ((ConstructorDeclaration) element).getCode(_factory);
+			}
+			if (elementCode != null) {
+				fragment.append(elementCode);
+			}
+		}
+		
+		return fragment;
 	}
 
 	@Override
@@ -155,6 +206,18 @@ public class ClassDeclaration implements Instruction, Declaration {
 		}
 		image += "}\n";
 		return image;
+	}
+
+	public List<ClassElement> getElements() {
+		return this.elements;
+	}
+
+	public String getAncestor() {
+		return this.ancestor;
+	}
+
+	public HierarchicalScope<Declaration> getScope() {
+		return this.scope;
 	}
 
 }

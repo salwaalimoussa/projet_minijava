@@ -123,41 +123,42 @@ public class ASTBuilder extends MiniJavaParserBaseListener {
           okCompleteResolve = okCompleteResolve && this.main.completeResolve(tds);
           if (okCompleteResolve) {
           System.out.println("Resolve succeeded.");
-        /* 
-         * boolean okCheckType = true;
-         * for (ClassDeclaration c : this.classes) {
-         * okCheckType = okCheckType && c.checkType();
-         * }
-         * okCheckType = okCheckType && this.main.checkType();
-         * 
-         * if (okCheckType) {
-         * System.out.println("Type verification succeeded.");
-         * 
-         * System.out.println("Code generation ...");
-         * for (ClassDeclaration c : this.classes) {
-         * c.allocateMemory(Register.SB, 0);
-         * }
-         * this.main.allocateMemory(Register.SB, 0);
-         * TAMFactory factory = new TAMFactoryImpl();
-         * Fragment f = factory.createFragment();
-         * for (ClassDeclaration c : this.classes) {
-         * f.append(c.getCode(factory));
-         * }
-         * f.append(this.main.getCode(factory));
-         * f.add(factory.createHalt());
-         * try {
-         * PrintWriter writer = new PrintWriter(output_path);
-         * writer.println(f);
-         * writer.close();
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * System.out.println("Code generation finished");
-         * 
-         * } else {
-         * System.out.println("Type verification failed.");
-         * }
-         */ 
+     
+          boolean okCheckType = true;
+          for (ClassDeclaration c : this.classes) {
+          okCheckType = okCheckType && c.checkType();
+          }
+          okCheckType = okCheckType && this.main.checkType();
+          
+          if (okCheckType) {
+          System.out.println("Type verification succeeded.");
+             
+          System.out.println("Code generation ...");
+          for (ClassDeclaration c : this.classes) {
+          c.allocateMemory(Register.SB, 0);
+          }
+          this.main.allocateMemory(Register.SB, 0);
+          TAMFactory factory = new TAMFactoryImpl();
+          Fragment f = factory.createFragment();
+          for (ClassDeclaration c : this.classes) {
+          f.append(c.getCode(factory));
+          }
+          f.append(this.main.getCode(factory));
+          f.add(factory.createHalt());
+          try {
+          PrintWriter writer = new PrintWriter(output_path);
+          writer.println(f);
+          writer.close();
+          } catch (IOException e) {
+          e.printStackTrace();
+          }
+          System.out.println("Code generation finished");
+          
+         
+          } else {
+          System.out.println("Type verification failed.");
+          }
+         
           } else {
           System.out.println("Resolve failed." + tds);
           }

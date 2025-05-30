@@ -142,7 +142,7 @@ public class FunctionDeclaration implements Instruction, Declaration {
 	 
 		 // Create a local scope for the function's parameters and body
 		 HierarchicalScope<Declaration> localScope = new SymbolTable(_scope);
-		     localScope.register(this); // ✅ POURQUOI ? Pour permettre l'appel récursif
+		 localScope.register(this); // For recursive calls
 
 		 // Register parameters in the local scope
 		 boolean parametersResolved = true;
@@ -160,7 +160,8 @@ public class FunctionDeclaration implements Instruction, Declaration {
 	 
 		 return parametersResolved && bodyResolved;
 	 }
-@Override
+
+	@Override
 	public boolean collectAndPartialResolve(HierarchicalScope<Declaration> _scope, FunctionDeclaration _function) {
 		// Delegate to the existing collectAndPartialResolve method
 		return this.collectAndPartialResolve(_scope);
@@ -174,7 +175,6 @@ public class FunctionDeclaration implements Instruction, Declaration {
 	 * .Scope)
 	 */
 	@Override
-
 	public boolean completeResolve(HierarchicalScope<Declaration> _scope) {
 		// Fully resolve the parameters
 		boolean parametersResolved = true;
@@ -185,13 +185,13 @@ public class FunctionDeclaration implements Instruction, Declaration {
 			}
 		}
 
-		// Crée une portée locale et ajoute les paramètres
+		// Create a local scope and add parameters
 		HierarchicalScope<Declaration> localScope = new SymbolTable(_scope);
 		for (ParameterDeclaration parameter : this.parameters) {
 			localScope.register(parameter);
 		}
 
-		// Fully resolve the body of the function using la portée locale
+		// Fully resolve the body of the function using the local scope
 		boolean bodyResolved = this.body.completeResolve(localScope);
 
 		return parametersResolved && bodyResolved;
@@ -203,46 +203,47 @@ public class FunctionDeclaration implements Instruction, Declaration {
 	 * @see fr.n7.stl.block.ast.instruction.Instruction#checkType()
 	 */
 	@Override
-public boolean checkType() {
-    HierarchicalScope<Declaration> functionScope = new SymbolTable();
-    
-    // Register parameters
-    for (ParameterDeclaration param : parameters) {
-        functionScope.register(param);
-    }
-    
-    // Set function context
-    if (!this.body.collectAndPartialResolve(functionScope, this)) {
-        return false;
-    }
-    
-    // Check for returns recursively
-    if (!hasValidReturn(this.body)) {
-        Logger.error("Function " + this.name + " missing return");
-        return false;
-    }
-    
-    return this.body.checkType();
-}
+	public boolean checkType() {
+		// Create a new scope for type checking, with no parent since we only need parameter types
+		HierarchicalScope<Declaration> functionScope = new SymbolTable();
+		
+		// Register parameters
+		for (ParameterDeclaration param : parameters) {
+			functionScope.register(param);
+		}
+		
+		// Set function context
+		if (!this.body.collectAndPartialResolve(functionScope, this)) {
+			return false;
+		}
+		
+		// Check for returns recursively
+		if (!hasValidReturn(this.body)) {
+			Logger.error("Function " + this.name + " missing return");
+			return false;
+		}
+		
+		return this.body.checkType();
+	}
 
-private boolean hasValidReturn(Block block) {
-    for (Instruction instruction : block.getInstructions()) {
-        if (instruction instanceof Return) {
-            Return returnInst = (Return) instruction;
-            return returnInst.getValue().getType().equalsTo(this.type);
-        }
-        if (instruction instanceof Conditional) {
-            Conditional cond = (Conditional) instruction;
-            boolean thenReturns = hasValidReturn(cond.getThenBranch());
-            boolean elseReturns = cond.getElseBranch() == null || 
-                                hasValidReturn(cond.getElseBranch());
-            if (thenReturns && elseReturns) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
+	private boolean hasValidReturn(Block block) {
+		for (Instruction instruction : block.getInstructions()) {
+			if (instruction instanceof Return) {
+				Return returnInst = (Return) instruction;
+				return returnInst.getValue().getType().equalsTo(this.type);
+			}
+			if (instruction instanceof Conditional) {
+				Conditional cond = (Conditional) instruction;
+				boolean thenReturns = hasValidReturn(cond.getThenBranch());
+				boolean elseReturns = cond.getElseBranch() == null || 
+									hasValidReturn(cond.getElseBranch());
+				if (thenReturns && elseReturns) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -259,15 +260,15 @@ private boolean hasValidReturn(Block block) {
 		// On alloue la mémoire pour chaque paramètre de la fonction
 		for (ParameterDeclaration parameter : this.parameters) {
 			// On suppose que les paramètres sont posés en mémoire consécutivement
-			// Pas besoin d’appeler une méthode : on simule le comportement ici
+			// Pas besoin d'appeler une méthode : on simule le comportement ici
 			currentOffset += parameter.getType().length();
 		}
 
 		// On alloue ensuite la mémoire pour le corps de la fonction (variables locales)
 		this.body.allocateMemory(Register.LB, currentOffset);
 
-		// La fonction n’alloue rien dans le registre global à son niveau d’appel,
-		// donc on retourne simplement l’offset inchangé
+		// La fonction n'alloue rien dans le registre global à son niveau d'appel,
+		// donc on retourne simplement l'offset inchangé
 		return _offset;
 	}
 
@@ -278,23 +279,22 @@ private boolean hasValidReturn(Block block) {
 	 * TAMFactory)
 	 */
 	@Override
-public Fragment getCode(TAMFactory _factory) {
-    Fragment fragment = _factory.createFragment();
+	public Fragment getCode(TAMFactory _factory) {
+		Fragment fragment = _factory.createFragment();
 
-    // Ajout du corps (le conditional qui contient then/else)
-    fragment.append(this.body.getCode(_factory));
+		// Ajout du corps (le conditional qui contient then/else)
+		fragment.append(this.body.getCode(_factory));
 
-    // Ajout du return après le corps (avec taille de la valeur retournée et nombre paramètres)
-    //fragment.add(_factory.createReturn(this.type.length(), this.parameters.size()));
-	if (!bodyHasReturn(this.body)) {
-        fragment.add(_factory.createReturn(this.type.length(), this.parameters.size()));
-    }
-    // Ajout label fonction (pour appel)
-    fragment.addPrefix(this.name);
+		// Ajout du return après le corps (avec taille de la valeur retournée et nombre paramètres)
+		//fragment.add(_factory.createReturn(this.type.length(), this.parameters.size()));
+		if (!bodyHasReturn(this.body)) {
+			fragment.add(_factory.createReturn(this.type.length(), this.parameters.size()));
+		}
+		// Ajout label fonction (pour appel)
+		fragment.addPrefix(this.name);
 
-    return fragment;
-}
-
+		return fragment;
+	}
 
 	private boolean bodyHasReturn(Block block) {
 		for (Instruction instr : block.getInstructions()) {

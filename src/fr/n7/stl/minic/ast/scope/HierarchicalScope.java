@@ -17,4 +17,8 @@ public interface HierarchicalScope <D extends Declaration> extends Scope<D> {
 	 */
 	public boolean knows(String _name);
 
+	public Iterable<D> getAll();
+
+	public HierarchicalScope<D> getParent();
+
 }

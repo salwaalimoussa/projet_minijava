@@ -137,4 +137,29 @@ public class MethodDeclaration  extends ClassElement {
 		return result;
 	}
 
+	public fr.n7.stl.tam.ast.Fragment getCode(fr.n7.stl.tam.ast.TAMFactory _factory) {
+		fr.n7.stl.tam.ast.Fragment fragment = _factory.createFragment();
+		
+		if (this.concrete && this.body != null) {
+			// Add a PUSH instruction to make the fragment non-empty
+			fragment.add(_factory.createPush(0));
+			
+			// Create a label for the method
+			String methodLabel = "method_" + this.name;
+			fragment.addPrefix(methodLabel);
+			
+			// Generate code for method body
+			fragment.append(this.body.getCode(_factory));
+			
+			// Add return instruction if needed
+			if (!this.type.equals(fr.n7.stl.minic.ast.type.AtomicType.VoidType)) {
+				fragment.add(_factory.createReturn(this.type.length(), this.parameters.size() * 1)); // Assuming each parameter takes 1 word
+			} else {
+				fragment.add(_factory.createReturn(0, this.parameters.size() * 1));
+			}
+		}
+		
+		return fragment;
+	}
+
 }

@@ -25,7 +25,44 @@ public class AttributeAccess implements AccessibleExpression, AssignableExpressi
 
     @Override
     public Type getType() {
-        // TODO: Implement type resolution for attribute access
+        Type objectType = this.object.getType();
+        if (objectType instanceof fr.n7.stl.minijava.ast.type.ClassType) {
+            fr.n7.stl.minijava.ast.type.ClassType classType = (fr.n7.stl.minijava.ast.type.ClassType) objectType;
+            HierarchicalScope<Declaration> scope = classType.getScope();
+            
+            if (scope != null) {
+                // Find the class declaration
+                Declaration decl = scope.get(classType.getName());
+                if (decl instanceof fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration) {
+                    fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration currentClass = 
+                        (fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration) decl;
+                    
+                    // Check current class and all ancestor classes for the attribute
+                    while (currentClass != null) {
+                        // Check if the attribute exists in this class
+                        for (fr.n7.stl.minijava.ast.type.declaration.ClassElement element : currentClass.getElements()) {
+                            if (element instanceof fr.n7.stl.minijava.ast.type.declaration.AttributeDeclaration 
+                                && element.getName().equals(this.attributeName)) {
+                                return element.getType();
+                            }
+                        }
+                        
+                        // If not found, check the ancestor class
+                        String ancestorName = currentClass.getAncestor();
+                        if (ancestorName != null) {
+                            Declaration ancestorDecl = scope.get(ancestorName);
+                            if (ancestorDecl instanceof fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration) {
+                                currentClass = (fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration) ancestorDecl;
+                            } else {
+                                currentClass = null;
+                            }
+                        } else {
+                            currentClass = null;
+                        }
+                    }
+                }
+            }
+        }
         return null;
     }
 

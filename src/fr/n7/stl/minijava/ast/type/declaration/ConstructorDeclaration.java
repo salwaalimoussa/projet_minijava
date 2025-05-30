@@ -115,4 +115,25 @@ public class ConstructorDeclaration extends ClassElement {
 		
 		return result;
 	}
+
+	public fr.n7.stl.tam.ast.Fragment getCode(fr.n7.stl.tam.ast.TAMFactory _factory) {
+		fr.n7.stl.tam.ast.Fragment fragment = _factory.createFragment();
+		
+		// Add a PUSH instruction to make the fragment non-empty
+		fragment.add(_factory.createPush(0));
+		
+		// Create a label for the constructor
+		String constructorLabel = "constructor_" + this.name;
+		fragment.addPrefix(constructorLabel);
+		
+		// Generate code for constructor body
+		if (this.body != null) {
+			fragment.append(this.body.getCode(_factory));
+		}
+		
+		// Add return instruction (constructors don't return values)
+		fragment.add(_factory.createReturn(0, this.parameters.size() * 1)); // Assuming each parameter takes 1 word
+		
+		return fragment;
+	}
 }

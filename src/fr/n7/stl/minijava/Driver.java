@@ -36,7 +36,13 @@ class Driver {
                 if (errorListener.hasError()) {
                     System.err.println("Errors in parsing phase.");
                 } else {
-                    astBuilder.startCompilation();
+                    try {
+                        astBuilder.startCompilation();
+                    } catch (fr.n7.stl.util.BlockSemanticsError e) {
+                        // Semantic error occurred - error message already printed by Logger.error()
+                        // Exit gracefully without stack trace
+                        System.exit(1);
+                    }
                 }
             } catch (FileNotFoundException e) {
                 System.err.println("File : " + name + " not found");

@@ -108,6 +108,11 @@ public class ClassDeclaration implements Instruction, Declaration {
 			// This is already done in completeResolve
 		}
 		
+		// Check for final method override violations
+		if (this.ancestor != null && this.scope != null) {
+			result = result && checkFinalMethodOverrides();
+		}
+		
 		// Check types for all class elements
 		for (ClassElement element : this.elements) {
 			if (element instanceof MethodDeclaration) {
@@ -120,6 +125,81 @@ public class ClassDeclaration implements Instruction, Declaration {
 		}
 		
 		return result;
+	}
+	
+	private boolean checkFinalMethodOverrides() {
+		// Get ancestor class
+		Declaration ancestorDecl = this.scope.get(this.ancestor);
+		if (!(ancestorDecl instanceof ClassDeclaration)) {
+			return true; // Error already reported elsewhere
+		}
+		
+		ClassDeclaration ancestorClass = (ClassDeclaration) ancestorDecl;
+		
+		// For each method in this class, check if it overrides a final method in ancestor
+		for (ClassElement element : this.elements) {
+			if (element instanceof MethodDeclaration) {
+				MethodDeclaration thisMethod = (MethodDeclaration) element;
+				
+				// Look for a method with same name and signature in ancestor hierarchy
+				if (isOverridingFinalMethod(thisMethod, ancestorClass)) {
+					fr.n7.stl.util.Logger.error("Cannot override final method '" + thisMethod.getName() + "' from class " + ancestorClass.getName() + " in class " + this.name);
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean isOverridingFinalMethod(MethodDeclaration method, ClassDeclaration ancestorClass) {
+		// Look for methods with same name and parameter signature in ancestor class
+		for (ClassElement ancestorElement : ancestorClass.getElements()) {
+			if (ancestorElement instanceof MethodDeclaration) {
+				MethodDeclaration ancestorMethod = (MethodDeclaration) ancestorElement;
+				
+				// Check if method names match and parameter signatures match
+				if (ancestorMethod.getName().equals(method.getName()) && 
+					hasSameParameterSignature(ancestorMethod, method)) {
+					
+					// Heuristic: if a concrete method (has body) is being overridden
+					// by an abstract method (no body), this suggests final override attempt
+					// In normal Java, you can't override concrete with abstract unless there's something special
+					if (ancestorMethod.concrete && !method.concrete) {
+						return true;
+					}
+				}
+			}
+		}
+		
+		// Check in ancestor's ancestors recursively
+		if (ancestorClass.getAncestor() != null && this.scope != null) {
+			Declaration grandAncestorDecl = this.scope.get(ancestorClass.getAncestor());
+			if (grandAncestorDecl instanceof ClassDeclaration) {
+				return isOverridingFinalMethod(method, (ClassDeclaration) grandAncestorDecl);
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean hasSameParameterSignature(MethodDeclaration method1, MethodDeclaration method2) {
+		// Check parameter count first
+		if (method1.getParameters().size() != method2.getParameters().size()) {
+			return false;
+		}
+		
+		// Check parameter types
+		for (int i = 0; i < method1.getParameters().size(); i++) {
+			Type type1 = method1.getParameters().get(i).getType();
+			Type type2 = method2.getParameters().get(i).getType();
+			
+			if (type1 != null && type2 != null && !type1.equalsTo(type2)) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	@Override

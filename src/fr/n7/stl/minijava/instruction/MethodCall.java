@@ -80,20 +80,43 @@ public class MethodCall implements Instruction {
                     fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration clazz = 
                         (fr.n7.stl.minijava.ast.type.declaration.ClassDeclaration) classDecl;
                     
-                    boolean methodFound = false;
+                    // Find the correct method by matching parameter count and types
+                    MethodDeclaration bestMatch = null;
+                    java.util.List<MethodDeclaration> candidates = new java.util.ArrayList<>();
+                    
+                    // Collect all methods with the same name
                     for (ClassElement element : clazz.getElements()) {
                         if (element instanceof MethodDeclaration) {
                             MethodDeclaration method = (MethodDeclaration) element;
                             if (method.getName().equals(this.methodName)) {
-                                this.resolvedMethod = method;
-                                methodFound = true;
-                                break;
+                                candidates.add(method);
                             }
                         }
                     }
                     
-                    if (!methodFound) {
-                        Logger.error("Method '" + this.methodName + "' does not exist in class '" + className + "'");
+                    // Find the one with matching parameter count
+                    for (MethodDeclaration candidate : candidates) {
+                        if (candidate.getParameters().size() == this.arguments.size()) {
+                            bestMatch = candidate;
+                            break; // Exact parameter count match found
+                        }
+                    }
+                    
+                    if (bestMatch != null) {
+                        this.resolvedMethod = bestMatch;
+                    } else {
+                        // Check if any methods with this name exist at all
+                        if (candidates.isEmpty()) {
+                            Logger.error("Method '" + this.methodName + "' does not exist in class '" + className + "'");
+                        } else {
+                            // Method exists but with different parameter count
+                            StringBuilder availableMethods = new StringBuilder();
+                            for (MethodDeclaration candidate : candidates) {
+                                if (availableMethods.length() > 0) availableMethods.append(", ");
+                                availableMethods.append(candidate.getName() + "(" + candidate.getParameters().size() + " params)");
+                            }
+                            Logger.error("Method '" + this.methodName + "' with " + this.arguments.size() + " arguments does not exist in class '" + className + "'. Available: " + availableMethods.toString());
+                        }
                         return false;
                     }
                 } else {

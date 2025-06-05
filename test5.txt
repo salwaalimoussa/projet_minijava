@@ -1,0 +1,33 @@
+// test : Redéfinition de méthodes (override)
+class A {
+
+	public A() {
+
+	}
+
+	public void say() {
+		print 1;
+	}
+}
+
+abstract class B extends A {
+	public int a ;
+	public B() {
+		this(2);		// à tester avec super
+	}
+	public void say() {
+		print 2;
+	}
+	
+}
+
+public class Main {
+	public static void main(String[] args) {
+		A a = new A();
+		B b = new B();
+		a.say();
+		b.say();
+		a = b;
+		a.say(); // doit afficher 2
+	}
+}

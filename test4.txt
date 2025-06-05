@@ -1,0 +1,23 @@
+//test : Héritage simple + champs hérités
+class A {
+	public int val;
+}
+
+class B extends A {
+	public void set(int v) {
+		this.val = v;
+	}
+
+	public void set() {
+		this.val = 2;
+	}
+}
+
+public class Main {
+	public static void main(String[] args) {
+		B b = new B();
+		b.set(); // ca marche pas 
+		b.set(33);
+		print b.val;
+	}
+}

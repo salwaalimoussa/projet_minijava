@@ -1,0 +1,12 @@
+//test : tableau et boucle
+public class Main {
+	public static void main(String[] args) {
+		int[] arr = new int[5];
+		int i = 0;
+		while (i < 5) {
+			arr[i] = i * 2;
+			i = i + 1;
+		}
+		print arr[2]; // devrait afficher 4
+	}
+}

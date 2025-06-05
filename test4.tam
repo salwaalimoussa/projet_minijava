@@ -1,0 +1,18 @@
+PUSH 0
+PUSH 0
+PUSH 0
+method_set
+PUSH 0
+LOAD (1) -1[LB]
+STOREI (1)
+RETURN (0) 1
+method_set
+PUSH 0
+LOADL 2
+STOREI (1)
+RETURN (0) 0
+PUSH 0
+STORE (1) 0[SB]
+SUBR IOut
+HALT
+

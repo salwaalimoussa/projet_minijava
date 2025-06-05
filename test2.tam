@@ -1,0 +1,36 @@
+PUSH 0
+method_setV
+PUSH 0
+LOAD (1) -1[LB]
+STOREI (1)
+RETURN (0) 1
+method_getV
+PUSH 0
+RETURN (1) 0
+RETURN (1) 0
+constructor_A
+PUSH 0
+RETURN (0) 0
+constructor_A
+PUSH 0
+LOAD (1) -1[LB]
+STOREI (1)
+RETURN (0) 1
+PUSH 0
+STORE (1) 0[SB]
+STORE (1) 1[SB]
+SUBR IOut
+SUBR IOut
+SUBR IOut
+SUBR IOut
+STOREI (1)
+SUBR IOut
+SUBR IOut
+SUBR IOut
+LOAD (1) 1[SB]
+LOADA 0[SB]
+STOREI (1)
+SUBR IOut
+SUBR IOut
+HALT
+

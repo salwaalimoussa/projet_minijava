@@ -1,0 +1,35 @@
+PUSH 0
+constructor_A
+PUSH 0
+RETURN (0) 0
+method_say
+PUSH 0
+LOADL 1
+SUBR IOut
+RETURN (0) 0
+PUSH 0
+PUSH 0
+constructor_A
+PUSH 0
+RETURN (0) 0
+method_say
+PUSH 0
+LOADL 1
+SUBR IOut
+RETURN (0) 0
+constructor_B
+PUSH 0
+RETURN (0) 0
+method_say
+PUSH 0
+LOADL 2
+SUBR IOut
+RETURN (0) 0
+PUSH 0
+STORE (1) 0[SB]
+STORE (1) 1[SB]
+LOAD (1) 1[SB]
+LOADA 0[SB]
+STOREI (1)
+HALT
+

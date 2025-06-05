@@ -1,0 +1,8 @@
+PUSH 0
+method_set
+PUSH 0
+RETURN (0) 1
+PUSH 0
+STORE (1) 0[SB]
+HALT
+
